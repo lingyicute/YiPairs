@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96" role="img" aria-label="YiPairs">
+  <title>YiPairs</title>
+  <rect width="96" height="96" rx="22" fill="#3B839B"/>
+  <rect x="22" y="22" width="22" height="22" rx="7" fill="#FFFFFF" opacity="0.95"/>
+  <rect x="52" y="22" width="22" height="22" rx="7" fill="#FFFFFF" opacity="0.6"/>
+  <rect x="22" y="52" width="22" height="22" rx="7" fill="#FFFFFF" opacity="0.6"/>
+  <rect x="52" y="52" width="22" height="22" rx="7" fill="#FFFFFF" opacity="0.95"/>
+</svg>
