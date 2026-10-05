@@ -1,2 +1,148 @@
-# YiPairs
-H5 Pairs
+<br>
+<br>
+<br>
+<br>
+<p align="center">
+  <img src="./assets/icon.png" alt="YiPairs Logo" width="96" height="96" onerror="this.style.display='none'"/>
+</p>
+<h1 align="center">YiPairs</h1>
+<h3 align="center">Simple yet delightful H5 Concentration game.</h3>
+
+<p align="center">A clean, lightweight, and privacy-first Concentration game, crafted with Material You and modern web engineering.</p>
+<p align="center">Made with ❤️ by <a href="https://github.com/lingyicute">lingyicute</a>.</p>
+<br>
+<br>
+<p align="center">
+  [🇺🇸 English] •
+  <a href="https://github.com/lingyicute/YiPairs">🌐 Source Code</a> •
+  <a href="https://github.com/lingyicute/YiPairs/issues">🐛 Report Bug</a>
+</p>
+
+<p align="center">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-AGPL--3.0-orange.svg" alt="License: AGPL-3.0"></a>
+  <a href="index.html"><img src="https://img.shields.io/badge/Single%20File-278%20KB-blue" alt="Single File 278 KB"></a>
+  <a href="https://github.com/lingyicute/YiPairs"><img src="https://img.shields.io/badge/Dependencies-Zero-brightgreen" alt="Zero Dependencies"></a>
+  <a href="https://github.com/lingyicute/YiPairs"><img src="https://img.shields.io/badge/Ads%20%26%20Trackers-Zero-brightgreen" alt="No Ads No Tracking"></a>
+  <a href="https://github.com/lingyicute/YiPairs"><img src="https://img.shields.io/github/stars/lingyicute/YiPairs?style=flat&color=yellow" alt="GitHub Stars"></a>
+</p>
+<br>
+
+## 📖 Overview
+
+Concentration games in the browser are usually a grid of grey rectangles glued together in a hurry — one board size, a stopwatch you cannot pause, and a mismatch animation so fast you never get to memorise anything.
+
+**YiPairs** is the same classic "flip two cards" idea, rebuilt properly: **four board sizes**, a **free preview** at the start of every round, a **peek** that pauses the clock while you look, calm pacing, and records kept separately for **fewest moves** and **fastest time**. Card faces are emoji, so there is no image sprite to download, and the whole game is **one self-contained HTML file**.
+
+<br>
+
+## ✨ Features
+
+- **🃏 A Fair Game**
+  - **Free preview** on every start — you always get one look at the board before the clock begins.
+  - **Peek (偷看)** reveals the whole board for two seconds and **pauses the timer** while you study it; two manual peeks per round, with a badge showing how many remain.
+  - **Calm mismatch pacing** — wrong pairs stay visible for a moment before flipping back, so you actually get to memorise them.
+  - Cards are **emoji** (fruit and animals) sized relative to the board, so they stay crisp on any screen.
+
+- **🎯 Four Board Sizes**
+  - **简单 Easy** 4×3 (6 pairs) · **中等 Medium** 4×4 (8) · **困难 Hard** 5×6 (15) · **专家 Expert** 6×6 (18).
+  - Difficulty chips rebuild the deck instantly, and the layout scales with the viewport.
+
+- **📊 Records Worth Chasing**
+  - **Fewest moves** and **fastest time** are tracked separately, per difficulty.
+  - Best-times dialog lists every difficulty together with how many times you have cleared it; and one menu item to clear the records.
+
+- **🎨 Material You & Polished Design**
+  - **Dynamic theming**: eight palettes, each generating a full tonal token set — surfaces, containers, primary, outlines — for both light and dark modes.
+  - A loading veil while styles and the embedded font initialise, and a soft "准备好了 / Ready" overlay that lifts when the round starts.
+  - Day / Night mode with the initial choice taken from `prefers-color-scheme`, live `theme-color` updates, and `prefers-reduced-motion` support.
+
+- **🔒 100% Privacy, Offline & Ad-Free**
+  - **Zero network requests** — the page is fully self-contained and works offline.
+  - Records and preferences sit in `localStorage` under a single key (`yipairs.web.v1`); nothing is uploaded.
+  - Licensed under **AGPL-3.0**.
+
+- **♿ Built to Be Usable**
+  - Full keyboard play (`↑ ↓ ← →` / `W A S D` to move, `Space` to flip, `H` to peek, `R` to restart) with an on-screen key legend.
+  - ARIA roles, labelled controls, live regions and focus-visible outlines throughout.
+
+<br>
+
+## 🛠️ Why YiPairs? (Under the Hood)
+
+### 1. A Stopwatch That Only Counts Real Play
+The clock does not start until you lift the "ready" veil, and it pauses during peeks — so your recorded time measures concentration, not how fast you can tap a button. Records are stored per difficulty, and moves and time are ranked separately because the two skills are genuinely different.
+
+### 2. Assists Instead of Punishment
+Most digital memory games sell you a hint or simply let you flounder. YiPairs hands you a free preview, then budgets two peeks per round with visible bookkeeping, and slows mismatches down so every mistake is still useful information.
+
+### 3. Emoji Faces, Embedded Font, Zero Assets
+Card faces are Unicode emoji, so the "art" costs nothing to download and renders at any size. The only embedded asset is a **subset of the "Nebulove" typeface** — generated by the included `font_subsetting.py`, which walks the page, collects exactly the characters it can render (plus ASCII, CJK punctuation and the emoji codepoints in use) and writes the base64 WOFF2 back into the HTML. The net result is a rich-looking game with **no external requests at all**.
+
+<br>
+
+## 🚀 Play It Now
+
+There is nothing to install — the game *is* one HTML file.
+
+### Option 1 — Just open it
+Download `index.html` (or clone the repository) and double-click the file. It works straight from disk, offline.
+
+### Option 2 — Serve it locally
+```bash
+git clone https://github.com/lingyicute/YiPairs.git
+cd YiPairs
+python3 -m http.server 8000     # then open http://localhost:8000
+```
+
+### Option 3 — Publish it anywhere
+Drop `index.html` on GitHub Pages, Cloudflare Pages, Netlify or any static host — a single file is the entire deployment.
+
+<br>
+
+## 🔨 Building from Source
+
+There is no build step: `index.html` is the source *and* the artifact.
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/lingyicute/YiPairs.git
+   cd YiPairs
+   ```
+
+2. **Edit and reload** — markup, styles and game logic live in the same file, separated by banner comments.
+
+3. **Regenerate the embedded font (optional)** — after changing UI copy, refresh the inlined typeface subset so new glyphs are included:
+   ```bash
+   pip install fonttools brotli
+   python3 font_subsetting.py /path/to/index.html
+   ```
+
+<br>
+
+## 🤗 Contributing
+
+Contributions are always welcome!
+- **Bug Reports & Feature Requests**: submit an issue on the [GitHub Issue Tracker](https://github.com/lingyicute/YiPairs/issues).
+- **Pull Requests**: keep the single-file, zero-dependency philosophy intact and match the existing code style.
+- **Translations**: the interface is currently Simplified Chinese — an i18n layer plus translated string tables would be very welcome.
+
+<br>
+
+## 📄 License
+
+```text
+Copyright (C) 2026 lingyicute <li@92li.uk>
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+```
