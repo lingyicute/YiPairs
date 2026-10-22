@@ -549,9 +549,30 @@
 
   /* ---------- Storage ---------- */
   const KEY = 'yipairs.web.v1';
-  const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } };
+  const load = () => {
+    try {
+      const value = JSON.parse(localStorage.getItem(KEY));
+      return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+    } catch { return {}; }
+  };
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch {} };
-  const store = Object.assign({ mode: null, hue: 0, diff: 'easy', records: {} }, load());
+  const saved = load();
+  const store = {
+    mode: saved.mode === 'light' || saved.mode === 'dark' ? saved.mode : null,
+    hue: Number.isInteger(saved.hue) && saved.hue >= 0 && saved.hue < PALETTES.length ? saved.hue : 0,
+    diff: typeof saved.diff === 'string' && Object.hasOwn(DIFFS, saved.diff) ? saved.diff : 'easy',
+    records: {},
+  };
+  if (saved.records && typeof saved.records === 'object' && !Array.isArray(saved.records)) {
+    Object.keys(DIFFS).forEach(k => {
+      const r = saved.records[k];
+      if (r && typeof r === 'object' && !Array.isArray(r)
+          && Number.isSafeInteger(r.moves) && r.moves >= 0
+          && Number.isSafeInteger(r.time) && r.time >= 0) {
+        store.records[k] = { moves: r.moves, time: r.time };
+      }
+    });
+  }
 
   /* ---------- Theme ---------- */
   const root = document.documentElement;
@@ -679,23 +700,31 @@
   /* ---------- Game state ---------- */
   const boardEl = $('#board'), wrapEl = $('#boardWrap');
   const veilEl = $('#boardVeil'), readyBtn = $('#readyBtn');
-  let diff = DIFFS[store.diff] ? store.diff : 'easy';
+  let diff = store.diff;
   let deck = [], cards = [];
   let first = -1, locked = false, pendingWrong = null, wrongTimer = 0;
   let moves = 0, matched = 0, peeks = 0;
   let started = false, over = false;
-  let phase = 'ready'; // ready → preview → playing → over
+  let phase = 'ready'; // ready → preview → playing ↔ peeking → over
   let peeksLeft = PEEK_LIMIT, peekTimer = 0;
-  let acc = 0, lastTs = null, tickId = 0;
+  let acc = 0, lastTs = null, tickId = 0, generation = 0;
 
   const shuffle = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const gameLater = (fn, ms) => {
+    const current = generation;
+    return setTimeout(() => { if (current === generation) fn(); }, ms);
+  };
 
   function tick() {
     if (lastTs !== null) { const n = performance.now(); acc += n - lastTs; lastTs = n; }
     $('#time').textContent = fmt(acc);
   }
   function pause() { if (lastTs !== null) { tick(); lastTs = null; } }
-  function resume() { if (started && !over && !dialogOpen && !document.hidden && lastTs === null) lastTs = performance.now(); }
+  function resume() {
+    if (started && phase === 'playing' && !over && !dialogOpen && !document.hidden && lastTs === null) {
+      lastTs = performance.now();
+    }
+  }
   document.addEventListener('visibilitychange', () => document.hidden ? pause() : resume());
 
   function buildChips() {
@@ -715,6 +744,7 @@
   }
 
   function newGame() {
+    generation++;
     clearTimeout(wrongTimer); clearTimeout(peekTimer); clearInterval(tickId);
     const d = DIFFS[diff];
     const pairs = d.cols * d.rows / 2;
@@ -741,7 +771,7 @@
     });
     boardEl.appendChild(veilEl);
     veilEl.classList.remove('hide');
-    setTimeout(() => cards.forEach(c => c.classList.remove('dealing')), deck.length * 22 + 600);
+    gameLater(() => cards.forEach(c => c.classList.remove('dealing')), deck.length * 22 + 600);
 
     markChips();
     updatePeekBtn();
@@ -762,6 +792,7 @@
     const [a, b] = pendingWrong; pendingWrong = null;
     [a, b].forEach(i => { cards[i].classList.remove('flipped', 'wrong'); cards[i].setAttribute('aria-label', `第 ${i + 1} 张卡片，未翻开`); });
     locked = false;
+    updatePeekBtn();
   }
 
   function flip(i) {
@@ -776,17 +807,18 @@
     const a = first; first = -1; moves++;
     if (deck[a] === deck[i]) {
       locked = true;
-      setTimeout(() => {
+      gameLater(() => {
         [a, i].forEach(k => { cards[k].classList.add('matched'); cards[k].classList.remove('flipped'); cards[k].setAttribute('aria-disabled', 'true'); });
-        matched++; locked = false; updateHUD();
+        matched++; locked = false; updateHUD(); updatePeekBtn();
         if (matched === deck.length / 2) win();
       }, 420);
     } else {
       locked = true; pendingWrong = [a, i];
-      setTimeout(() => { if (pendingWrong) pendingWrong.forEach(k => cards[k].classList.add('wrong')); }, 450);
-      wrongTimer = setTimeout(flushWrong, MISMATCH_DELAY + 300);
+      gameLater(() => { if (pendingWrong) pendingWrong.forEach(k => cards[k].classList.add('wrong')); }, 450);
+      wrongTimer = gameLater(flushWrong, MISMATCH_DELAY + 300);
     }
     updateHUD();
+    updatePeekBtn();
   }
 
   /* 展示全部未配对的卡片 2 秒后翻回；cb 在展示结束后调用 */
@@ -800,10 +832,17 @@
     locked = true;
     const shown = [];
     cards.forEach((c, i) => {
-      if (!c.classList.contains('matched')) { c.classList.add('flipped'); shown.push(i); }
+      if (!c.classList.contains('matched')) {
+        c.classList.add('flipped');
+        c.setAttribute('aria-label', `第 ${i + 1} 张卡片：${deck[i]}`);
+        shown.push(i);
+      }
     });
-    peekTimer = setTimeout(() => {
-      shown.forEach(i => cards[i].classList.remove('flipped'));
+    peekTimer = gameLater(() => {
+      shown.forEach(i => {
+        cards[i].classList.remove('flipped');
+        cards[i].setAttribute('aria-label', `第 ${i + 1} 张卡片，未翻开`);
+      });
       locked = false;
       cb?.();
     }, PEEK_TIME);
@@ -811,7 +850,7 @@
 
   function updatePeekBtn() {
     const b = $('#hintBtn');
-    const usable = phase === 'playing' && !over && peeksLeft > 0;
+    const usable = phase === 'playing' && !over && peeksLeft > 0 && (!locked || pendingWrong !== null);
     b.disabled = !usable;
     const label = peeksLeft > 0 ? `偷看（剩余 ${peeksLeft} 次）` : '偷看次数已用完';
     b.title = label;
@@ -820,11 +859,16 @@
   }
 
   function peek() {
-    if (phase !== 'playing' || over || dialogOpen || peeksLeft <= 0) return;
+    if (phase !== 'playing' || over || dialogOpen || peeksLeft <= 0 || (locked && !pendingWrong)) return;
     peeksLeft--; peeks++;
+    phase = 'peeking';
     updatePeekBtn();
     pause();
-    showAll(resume);
+    showAll(() => {
+      phase = 'playing';
+      updatePeekBtn();
+      resume();
+    });
   }
 
   readyBtn.onclick = () => {
@@ -834,8 +878,8 @@
     showAll(() => {
       phase = 'playing';
       started = true;
-      lastTs = document.hidden ? null : performance.now();
       updatePeekBtn();
+      resume();
     });
   };
 
@@ -848,7 +892,7 @@
     store.records[diff] = { moves: Math.min(moves, prev ? prev.moves : Infinity), time: Math.min(rec.time, prev ? prev.time : Infinity) };
     save();
     const d = DIFFS[diff];
-    setTimeout(() => {
+    gameLater(() => {
       showDialog({
         icon: 'trophy', title: '配对完成!',
         body: `<div class="result">
