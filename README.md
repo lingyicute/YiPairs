@@ -114,8 +114,11 @@ There is no build step: `index.html` is the source *and* the artifact.
 3. **Regenerate the embedded font (optional)** — after changing UI copy, refresh the inlined typeface subset so new glyphs are included:
    ```bash
    pip install fonttools brotli
-   python3 font_subsetting.py /path/to/index.html
+   python3 font_subsetting.py /path/to/index.html \
+     --nebulove /path/to/Nebulove.ttf \
+     --emoji /path/to/Yomi-UI-Emoji.ttf
    ```
+   The HTML argument defaults to the `index.html` next to the script. Both source-font paths are required so the script does not depend on machine-specific directories.
 
 <br>
 
