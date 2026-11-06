@@ -8,10 +8,12 @@
 <style>
   :root {
     --h: 295;
+    --dvh: 100vh;
     --font: "Nebulove", "Yomi-UI-Emoji", "Google Sans", system-ui, -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
     --ease: cubic-bezier(.2, 0, 0, 1);
     --ease-spring: cubic-bezier(.3, 1.4, .5, 1);
   }
+  @supports (height: 1dvh) { :root { --dvh: 100dvh; } }
   :root[data-theme="light"] {
     color-scheme: light;
     --primary: oklch(.45 .16 var(--h));
@@ -60,7 +62,7 @@
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; }
   body {
-    min-height: 100dvh;
+    min-height: var(--dvh);
     font-family: var(--font);
     color: var(--on-surface);
     background-color: var(--surface);
@@ -184,7 +186,7 @@
   /* ---------- Board ---------- */
   .board-wrap {
     margin: 22px auto 0;
-    width: min(100%, max(300px, min(600px, calc((100dvh - 520px) * var(--cols) / var(--rows)))));
+    width: min(100%, max(300px, min(600px, calc((var(--dvh) - 520px) * var(--cols) / var(--rows)))));
   }
   .board {
     display: grid; grid-template-columns: repeat(var(--cols), 1fr); gap: var(--gap, 8px);
@@ -205,7 +207,7 @@
   .card {
     display: block; width: 100%; aspect-ratio: 1; position: relative;
     container-type: inline-size; perspective: 700px;
-    border-radius: 24cqw;
+    border-radius: 24%; border-radius: 24cqw;
   }
   .card.dealing { animation: deal .5s var(--ease-spring) both; animation-delay: var(--d, 0ms); }
   .inner {
@@ -214,7 +216,7 @@
   }
   .card.flipped .inner, .card.matched .inner { transform: rotateY(180deg); }
   .face {
-    position: absolute; inset: 0; border-radius: 24cqw; display: grid; place-items: center;
+    position: absolute; inset: 0; border-radius: 24%; border-radius: 24cqw; display: grid; place-items: center;
     backface-visibility: hidden; -webkit-backface-visibility: hidden;
     transition: background-color .3s, box-shadow .3s;
   }
@@ -233,7 +235,7 @@
   .card:not(.flipped):not(.matched):active { transform: scale(.94); transition: transform .12s; }
   .face.front {
     transform: rotateY(180deg); background: var(--card-face);
-    font-size: 54cqw; line-height: 1;
+    font-size: calc(var(--cq, 0px) * 54); font-size: 54cqw; line-height: 1;
     font-family: "Yomi-UI-Emoji", "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
     box-shadow: 0 1px 3px rgba(0,0,0,.12);
   }
@@ -285,7 +287,7 @@
   }
   .scrim.open { visibility: visible; opacity: 1; transition-delay: 0s; }
   .dialog {
-    width: 100%; max-width: 420px; max-height: calc(100dvh - 48px); overflow-y: auto;
+    width: 100%; max-width: 420px; max-height: calc(var(--dvh) - 48px); overflow-y: auto;
     background: var(--surface-container-high); border-radius: 28px; padding: 28px 24px 22px;
     box-shadow: var(--shadow); transform: scale(.88) translateY(20px); transition: transform .3s var(--ease-spring);
   }
@@ -363,7 +365,7 @@
       grid-template-rows: 1fr auto auto auto auto 1fr;
       grid-template-areas: ". board" "title board" "stats board" "chips board" "help board" ". board";
       column-gap: clamp(32px, 5vw, 80px);
-      min-height: calc(100dvh - 80px - 24px);
+      min-height: calc(var(--dvh) - 80px - 24px);
       --chrome: 170px;
     }
     .layout .title { grid-row: 2; padding: 0 0 22px; flex-direction: column; align-items: flex-start; gap: 6px; }
@@ -377,7 +379,7 @@
     .layout .help { grid-row: 5; text-align: left; padding: 0; }
     .layout .board-wrap {
       grid-row: 1 / -1; align-self: center; justify-self: center; margin: 0;
-      width: min(100%, max(300px, calc((100dvh - var(--chrome)) * var(--cols) / var(--rows))));
+      width: min(100%, max(300px, calc((var(--dvh) - var(--chrome)) * var(--cols) / var(--rows))));
     }
     .board { border-radius: 36px; }
   }
@@ -387,12 +389,12 @@
     .layout .title h1 { font-size: 64px; }
     .layout .stat output { font-size: 42px; }
     .layout .help { font-size: 16px; }
-    .layout .board-wrap { width: min(100%, max(300px, calc((100dvh - var(--chrome)) * var(--cols) / var(--rows)))); }
+    .layout .board-wrap { width: min(100%, max(300px, calc((var(--dvh) - var(--chrome)) * var(--cols) / var(--rows)))); }
   }
   @media (orientation: landscape) and (min-width: 640px) and (max-height: 520px) and (max-width: 999px) {
     .wrap { padding: 0 24px; }
     .bar { height: 60px; }
-    .layout { min-height: calc(100dvh - 60px - 24px); grid-template-columns: minmax(260px, 340px) minmax(0, 1fr); column-gap: 28px; --chrome: 110px; }
+    .layout { min-height: calc(var(--dvh) - 60px - 24px); grid-template-columns: minmax(260px, 340px) minmax(0, 1fr); column-gap: 28px; --chrome: 110px; }
     .layout .title h1 { font-size: 36px; }
     .layout .title { padding-bottom: 12px; }
     .layout .title .sub { font-size: 14px; }
@@ -403,7 +405,7 @@
     .layout .chips { margin: 14px 0 10px; gap: 8px; }
     .layout .chip { height: 40px; font-size: 15px; }
     .layout .help { font-size: 13px; line-height: 1.7; }
-    .layout .board-wrap { width: min(100%, max(220px, calc((100dvh - var(--chrome)) * var(--cols) / var(--rows)))); }
+    .layout .board-wrap { width: min(100%, max(220px, calc((var(--dvh) - var(--chrome)) * var(--cols) / var(--rows)))); }
     .board { border-radius: 24px; }
   }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
@@ -423,6 +425,15 @@
     animation: spin .8s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ---------- Fallbacks: no color-mix() ---------- */
+  @supports not (color: color-mix(in srgb, red, blue)) {
+    .icon-btn:hover, .menu-item:hover, .chip:hover { background: rgba(128, 128, 128, .15); }
+    .btn.text:hover { background: rgba(128, 128, 128, .12); }
+    .board-veil { background: rgba(128, 128, 128, .4); }
+    .card.wrong .face.front { background: #d99a9a; }
+    .spinner { border-color: rgba(128, 128, 128, .3); border-top-color: var(--primary); }
+  }
 </style>
 <style>
 /* INLINE_FONTS */
@@ -560,7 +571,7 @@
   const store = {
     mode: saved.mode === 'light' || saved.mode === 'dark' ? saved.mode : null,
     hue: Number.isInteger(saved.hue) && saved.hue >= 0 && saved.hue < PALETTES.length ? saved.hue : 0,
-    diff: typeof saved.diff === 'string' && Object.hasOwn(DIFFS, saved.diff) ? saved.diff : 'easy',
+    diff: typeof saved.diff === 'string' && Object.prototype.hasOwnProperty.call(DIFFS, saved.diff) ? saved.diff : 'easy',
     records: {},
   };
   if (saved.records && typeof saved.records === 'object' && !Array.isArray(saved.records)) {
@@ -575,6 +586,31 @@
   }
 
   /* ---------- Theme ---------- */
+  // Browsers without oklch(): convert the palette tokens to hex at runtime.
+  const HAS_OKLCH = !!(window.CSS && CSS.supports && CSS.supports('color', 'oklch(0 0 0)'));
+  function oklchToHex(L, C, H) {
+    const a = C * Math.cos(H * Math.PI / 180), b = C * Math.sin(H * Math.PI / 180);
+    const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3;
+    const m = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3;
+    const s = (L - 0.0894841775 * a - 1.2914855480 * b) ** 3;
+    return '#' + [4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+                  -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+                  -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s].map(v => {
+      v = Math.min(1, Math.max(0, v));
+      v = v <= 0.0031308 ? 12.92 * v : 1.055 * Math.pow(v, 1 / 2.4) - 0.055;
+      return Math.round(v * 255).toString(16).padStart(2, '0');
+    }).join('');
+  }
+  function applyFallbackColors(mode, h) {
+    const rule = Array.from(document.styleSheets[0].cssRules)
+      .find(r => (r.selectorText || '').indexOf('"' + mode + '"') >= 0);
+    if (!rule) return;
+    Array.from(rule.style).forEach(name => {
+      const m = /^oklch\(\s*([\d.]+)\s+([\d.]+)\s+(?:var\(--h\)|calc\(var\(--h\)\s*\+\s*(\d+)\)|([\d.]+))\s*\)$/
+        .exec(rule.style.getPropertyValue(name).trim());
+      if (m) root.style.setProperty(name, oklchToHex(+m[1], +m[2], m[4] ? +m[4] : h + (+m[3] || 0)));
+    });
+  }
   const root = document.documentElement;
   const themeMeta = $('meta[name="theme-color"]');
   const mq = window.matchMedia('(prefers-color-scheme: dark)');
@@ -582,6 +618,7 @@
     const mode = store.mode || (mq.matches ? 'dark' : 'light');
     root.dataset.theme = mode;
     root.style.setProperty('--h', PALETTES[store.hue].h);
+    if (!HAS_OKLCH) applyFallbackColors(mode, PALETTES[store.hue].h);
     $('#themeIcon').innerHTML = `<use href="#i-${mode === 'dark' ? 'sun' : 'moon'}"/>`;
     requestAnimationFrame(() => { themeMeta.content = getComputedStyle(document.body).backgroundColor; });
   }
@@ -595,7 +632,7 @@
   PALETTES.forEach((p, i) => {
     const b = document.createElement('button');
     b.className = 'swatch'; b.setAttribute('role', 'radio'); b.setAttribute('aria-label', p.name);
-    b.style.background = `oklch(.68 .14 ${p.h})`;
+    b.style.background = HAS_OKLCH ? `oklch(.68 .14 ${p.h})` : oklchToHex(.68, .14, p.h);
     b.innerHTML = icon('check');
     b.onclick = () => { store.hue = i; save(); applyTheme(); markSwatches(); };
     swatchBox.appendChild(b);
@@ -700,6 +737,13 @@
   /* ---------- Game state ---------- */
   const boardEl = $('#board'), wrapEl = $('#boardWrap');
   const veilEl = $('#boardVeil'), readyBtn = $('#readyBtn');
+  // Browsers without container query units (cqw): expose 1cqw of a card as --cq.
+  if (!(window.CSS && CSS.supports && CSS.supports('width', '1cqw')) && window.ResizeObserver) {
+    new ResizeObserver(() => {
+      const c = boardEl.querySelector('.card');
+      if (c) boardEl.style.setProperty('--cq', c.offsetWidth / 100 + 'px');
+    }).observe(boardEl);
+  }
   let diff = store.diff;
   let deck = [], cards = [];
   let first = -1, locked = false, pendingWrong = null, wrongTimer = 0;
